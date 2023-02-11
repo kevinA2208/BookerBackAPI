@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-import django_heroku
 import os
 from pathlib import Path
+import dj_database_url
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,12 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # Llave secreta que se trae del env
-SECRET_KEY = "django-insecure-c&=vms*4pel6xd6@flba14qzf=#$yd13v%$b-7_2)l#!sgtq%("
+SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:    
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -88,14 +92,10 @@ WSGI_APPLICATION = 'Booker_Back.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'booker',
-        'USER':'root',
-        'PASSWORD': '1019',
-        'HOST':'localhost',
-        'PORT': '3306'
-    }
+    'default': dj_database_url.config(
+        default='postgres://bookerapidb_user:TZcKgGmU4zI2Y1qlTlQA9srG454EdM8V@dpg-cfjr6ipmbjsn9e9auh2g-a/bookerapidb',
+        conn_max_age=600
+    )
 }
 
 
@@ -139,6 +139,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+if not DEBUG: 
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
