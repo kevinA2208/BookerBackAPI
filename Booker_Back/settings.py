@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'Booker_Back.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://bookerapidb_user:TZcKgGmU4zI2Y1qlTlQA9srG454EdM8V@dpg-cfjr6ipmbjsn9e9auh2g-a/bookerapidb',
+        default='sqlite:///db.sqlite3',
         conn_max_age=600
     )
 }
